@@ -1,0 +1,36 @@
+name: Mirsad-AI Testing Pipeline
+
+# Trigger the workflow on push or pull request for main and develop branches
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  run-tests:
+    # Use the latest Ubuntu runner provided by GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository code onto the runner
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Step 2: Install the 'uv' package manager
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true # Enable caching for faster consecutive runs
+
+    # Step 3: Install Python version specified in pyproject.toml
+    - name: Set up Python
+      run: uv python install
+
+    # Step 4: Sync project dependencies using uv.lock
+    - name: Install dependencies
+      run: uv sync
+
+    # Step 5: Execute all test cases using pytest via uv
+    - name: Run Pytest
+      run: uv run pytest
